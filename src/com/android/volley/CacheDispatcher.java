@@ -94,7 +94,7 @@ public class CacheDispatcher extends Thread {
             mNetworkQueue.put(request);
             return;
         }
-
+/*
         // If it is completely expired, just send it to the network.
         if (entry.isExpired()) {
             request.addMarker("cache-hit-expired");
@@ -102,7 +102,7 @@ public class CacheDispatcher extends Thread {
             mNetworkQueue.put(request);
             return;
         }
-
+*/
         // We have a cache hit; parse its data for delivery back to the request.
         request.addMarker("cache-hit");
         Response<?> response = request.parseNetworkResponse(
