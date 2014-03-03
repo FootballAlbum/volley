@@ -21,6 +21,7 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
 
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -112,7 +113,8 @@ public class NetworkDispatcher extends Thread {
 
                 // If the server returned 304 AND we delivered a response already,
                 // we're done -- don't deliver a second identical response.
-                if (networkResponse.notModified && request.hasHadResponseDelivered()) {
+                if (request.hasHadResponseDelivered() && (networkResponse.notModified ||
+                        Arrays.equals(networkResponse.data, mCache.get(request.getCacheKey()).data))) {
                     request.finish("not-modified");
                     continue;
                 }
