@@ -109,7 +109,7 @@ public class CacheDispatcher extends Thread {
                 new NetworkResponse(entry.data, entry.responseHeaders));
         request.addMarker("cache-hit-parsed");
 
-        if (!entry.refreshNeeded() && (request.getCachePolicy() & Request.CachePolicy.FORCE_REFRESH_CACHE)==0) {
+        if ((request.getCachePolicy() & Request.CachePolicy.AVOID_REFRESH)!=0 || (!entry.refreshNeeded() && (request.getCachePolicy() & Request.CachePolicy.FORCE_REFRESH)==0)) {
             // Completely unexpired cache hit. Just deliver the response.
             mDelivery.postResponse(request, response);
         } else {
