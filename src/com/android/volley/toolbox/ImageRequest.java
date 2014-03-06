@@ -16,6 +16,7 @@
 
 package com.android.volley.toolbox;
 
+import com.android.volley.Cache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -75,6 +76,8 @@ public class ImageRequest extends Request<Bitmap> {
         mDecodeConfig = decodeConfig;
         mMaxWidth = maxWidth;
         mMaxHeight = maxHeight;
+        //temp cache policy setting
+        setCachePolicy(CachePolicy.INCLUDE_STALE_CACHE|CachePolicy.AVOID_REFRESH|CachePolicy.RETURN_CACHE_IMMEDIATELY);
     }
 
     @Override
