@@ -114,7 +114,8 @@ public class NetworkDispatcher extends Thread {
                 // If the server returned 304 AND we delivered a response already,
                 // we're done -- don't deliver a second identical response.
                 if (request.hasHadResponseDelivered() && (networkResponse.notModified ||
-                        Arrays.equals(networkResponse.data, mCache.get(request.getCacheKey()).data))) {
+                        ((request.getCachePolicy() & Request.CachePolicy.IGNORE_IDENTICAL_RESPONSES) != 0 &&
+                                Arrays.equals(networkResponse.data, mCache.get(request.getCacheKey()).data)))) {
                     request.finish("not-modified");
                     continue;
                 }

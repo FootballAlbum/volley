@@ -57,6 +57,17 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         int PATCH = 7;
     }
 
+    /**
+     * Flags to modify cache behaviour
+     */
+    public interface CachePolicy {
+        int IGNORE_CACHE = 1;
+        int FORCE_REFRESH_CACHE = 2;
+        int INCLUDE_STALE_CACHE = 4;
+        int RETURN_CACHE_IMMEDIATELY = 8;
+        int IGNORE_IDENTICAL_RESPONSES = 16;
+    }
+
     /** An event log tracing the lifetime of this request; for debugging. */
     private final MarkerLog mEventLog = MarkerLog.ENABLED ? new MarkerLog() : null;
 
@@ -83,6 +94,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /** Whether or not responses to this request should be cached. */
     private boolean mShouldCache = true;
+
+    /**Flags to modify cache behaviour. */
+    private int mCachePolicy;
 
     /** Whether or not this request has been canceled. */
     private boolean mCanceled = false;
@@ -454,6 +468,20 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     public final boolean shouldCache() {
         return mShouldCache;
+    }
+
+    /**
+     * Set the cache policy for this request
+     */
+    public final void setCachePolicy(int cachePolicy) {
+        mCachePolicy = cachePolicy;
+    }
+
+    /**
+     * Returns the cache policy for this request
+     */
+    public int getCachePolicy() {
+        return mCachePolicy;
     }
 
     /**

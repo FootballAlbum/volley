@@ -94,22 +94,22 @@ public class CacheDispatcher extends Thread {
             mNetworkQueue.put(request);
             return;
         }
-/*
+
         // If it is completely expired, just send it to the network.
-        if (entry.isExpired()) {
+        if ((request.getCachePolicy() & Request.CachePolicy.INCLUDE_STALE_CACHE)==0 && entry.isExpired()) {
             request.addMarker("cache-hit-expired");
             request.setCacheEntry(entry);
             mNetworkQueue.put(request);
             return;
         }
-*/
+
         // We have a cache hit; parse its data for delivery back to the request.
         request.addMarker("cache-hit");
         Response<?> response = request.parseNetworkResponse(
                 new NetworkResponse(entry.data, entry.responseHeaders));
         request.addMarker("cache-hit-parsed");
 
-        if (!entry.refreshNeeded()) {
+        if (!entry.refreshNeeded() && (request.getCachePolicy() & Request.CachePolicy.FORCE_REFRESH_CACHE)==0) {
             // Completely unexpired cache hit. Just deliver the response.
             mDelivery.postResponse(request, response);
         } else {

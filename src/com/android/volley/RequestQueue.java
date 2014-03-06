@@ -225,7 +225,7 @@ public class RequestQueue {
         request.addMarker("add-to-queue");
 
         // If the request is uncacheable, skip the cache queue and go straight to the network.
-        if (!request.shouldCache()) {
+        if ((request.getCachePolicy() & Request.CachePolicy.IGNORE_CACHE)!=0) {
             mNetworkQueue.add(request);
             return request;
         }
@@ -248,11 +248,13 @@ public class RequestQueue {
                 // Insert 'null' queue for this cacheKey, indicating there is now a request in
                 // flight.
                 mWaitingRequests.put(cacheKey, null);
-                try {
+                if((request.getCachePolicy() & Request.CachePolicy.RETURN_CACHE_IMMEDIATELY)!=0) try {
                     mCacheDispatcher.dispatchRequest(request);
+                    return request;
                 } catch (InterruptedException e) {
-                    mCacheQueue.add(request);
+                    //shouldn't happen but add to queue instead
                 }
+                mCacheQueue.add(request);
             }
             return request;
         }
