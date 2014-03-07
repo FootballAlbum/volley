@@ -77,7 +77,7 @@ public class ImageRequest extends Request<Bitmap> {
         mMaxWidth = maxWidth;
         mMaxHeight = maxHeight;
         //temp cache policy setting
-        setCachePolicy(CachePolicy.INCLUDE_STALE_CACHE|CachePolicy.AVOID_REFRESH|CachePolicy.RETURN_CACHE_IMMEDIATELY);
+        setCachePolicy(CachePolicy.INCLUDE_STALE_CACHE | CachePolicy.AVOID_REFRESH);
     }
 
     @Override
