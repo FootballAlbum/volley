@@ -69,7 +69,7 @@ public class ImageRequest extends Request<Bitmap> {
      */
     public ImageRequest(String url, Response.Listener<Bitmap> listener, int maxWidth, int maxHeight,
             Config decodeConfig, Response.ErrorListener errorListener) {
-        super(Method.GET, url, errorListener);
+        super(Method.GET, url + "&width=" + maxWidth + "&height=" + maxHeight, errorListener);
         setRetryPolicy(
                 new DefaultRetryPolicy(IMAGE_TIMEOUT_MS, IMAGE_MAX_RETRIES, IMAGE_BACKOFF_MULT));
         mListener = listener;
@@ -77,7 +77,7 @@ public class ImageRequest extends Request<Bitmap> {
         mMaxWidth = maxWidth;
         mMaxHeight = maxHeight;
         //temp cache policy setting
-        setCachePolicy(CachePolicy.INCLUDE_STALE_CACHE | CachePolicy.AVOID_REFRESH);
+        setCachePolicy(CachePolicy.INCLUDE_STALE_CACHE | CachePolicy.AVOID_REFRESH | CachePolicy.RETURN_CACHE_IMMEDIATELY);
     }
 
     @Override
@@ -141,41 +141,41 @@ public class ImageRequest extends Request<Bitmap> {
         byte[] data = response.data;
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
         Bitmap bitmap = null;
-        if (mMaxWidth == 0 && mMaxHeight == 0) {
+//        if (mMaxWidth == 0 && mMaxHeight == 0) {
             decodeOptions.inPreferredConfig = mDecodeConfig;
             bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-        } else {
-            // If we have to resize this image, first get the natural bounds.
-            decodeOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-            int actualWidth = decodeOptions.outWidth;
-            int actualHeight = decodeOptions.outHeight;
-
-            // Then compute the dimensions we would ideally like to decode to.
-            int desiredWidth = getResizedDimension(mMaxWidth, mMaxHeight,
-                    actualWidth, actualHeight);
-            int desiredHeight = getResizedDimension(mMaxHeight, mMaxWidth,
-                    actualHeight, actualWidth);
-
-            // Decode to the nearest power of two scaling factor.
-            decodeOptions.inJustDecodeBounds = false;
-            // TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
-            // decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
-            decodeOptions.inSampleSize =
-                findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-            Bitmap tempBitmap =
-                BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-
-            // If necessary, scale down to the maximal acceptable size.
-            if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
-                    tempBitmap.getHeight() > desiredHeight)) {
-                bitmap = Bitmap.createScaledBitmap(tempBitmap,
-                        desiredWidth, desiredHeight, true);
-                tempBitmap.recycle();
-            } else {
-                bitmap = tempBitmap;
-            }
-        }
+//        } else {
+//            // If we have to resize this image, first get the natural bounds.
+//            decodeOptions.inJustDecodeBounds = true;
+//            BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+//            int actualWidth = decodeOptions.outWidth;
+//            int actualHeight = decodeOptions.outHeight;
+//
+//            // Then compute the dimensions we would ideally like to decode to.
+//            int desiredWidth = getResizedDimension(mMaxWidth, mMaxHeight,
+//                    actualWidth, actualHeight);
+//            int desiredHeight = getResizedDimension(mMaxHeight, mMaxWidth,
+//                    actualHeight, actualWidth);
+//
+//            // Decode to the nearest power of two scaling factor.
+//            decodeOptions.inJustDecodeBounds = false;
+//            // TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
+//            // decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
+//            decodeOptions.inSampleSize =
+//                findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
+//            Bitmap tempBitmap =
+//                BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+//
+//            // If necessary, scale down to the maximal acceptable size.
+//            if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
+//                    tempBitmap.getHeight() > desiredHeight)) {
+//                bitmap = Bitmap.createScaledBitmap(tempBitmap,
+//                        desiredWidth, desiredHeight, true);
+//                tempBitmap.recycle();
+//            } else {
+//                bitmap = tempBitmap;
+//            }
+//        }
 
         if (bitmap == null) {
             return Response.error(new ParseError(response));
