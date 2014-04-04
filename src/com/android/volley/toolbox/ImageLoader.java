@@ -84,7 +84,18 @@ public class ImageLoader {
      */
     public ImageLoader(RequestQueue queue, ImageCache imageCache) {
         mRequestQueue = queue;
-        mCache = imageCache;
+        mCache = imageCache != null ? imageCache : new ImageCache() {
+
+            @Override
+            public Bitmap getBitmap(String url) {
+                return null;
+            }
+
+            @Override
+            public void putBitmap(String url, Bitmap bitmap) {
+
+            }
+        };
     }
 
     /**
