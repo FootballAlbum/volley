@@ -33,6 +33,9 @@ public class NetworkImageView extends ImageView {
     /** The URL of the network image to load */
     private String mUrl;
 
+    /** The URL requested after replacing width and height format specifiers */
+    private String mRequestedUrl;
+
     /**
      * Resource ID of the image to be used as a placeholder until the network image is loaded.
      */
@@ -99,11 +102,9 @@ public class NetworkImageView extends ImageView {
     /**
      * Loads the image from the network
      */
-    protected ImageLoader.ImageContainer loadImage(String url, ImageLoader.ImageListener listener, int maxWidth, int maxHeight) {
-        if(url.contains("%w") && url.contains("%h")) {
-            return mImageLoader.get(url.replace("%w", String.valueOf(maxWidth)).replace("%h", String.valueOf(maxHeight)), listener);
-        }
-        return mImageLoader.get(url, listener, maxWidth, maxHeight);
+    private ImageLoader.ImageContainer loadImage(ImageLoader.ImageListener listener, int maxWidth, int maxHeight) {
+        mRequestedUrl = mUrl.replace("%w", String.valueOf(maxWidth)).replace("%h", String.valueOf(maxHeight));
+        return mRequestedUrl.equals(mUrl) ? mImageLoader.get(mUrl, listener, maxWidth, maxHeight) : mImageLoader.get(mRequestedUrl, listener);
     }
 
     /**
@@ -140,7 +141,7 @@ public class NetworkImageView extends ImageView {
 
         // if there was an old request in this view, check if it needs to be canceled.
         if (mImageContainer != null && mImageContainer.getRequestUrl() != null) {
-            if (mImageContainer.getRequestUrl().equals(mUrl)) {
+            if (mImageContainer.getRequestUrl().equals(mRequestedUrl)) {
                 // if the request is from the same URL, return.
                 return;
             } else {
@@ -156,7 +157,7 @@ public class NetworkImageView extends ImageView {
 
         // The pre-existing content of this view didn't match the current URL. Load the new image
         // from the network.
-        ImageContainer newContainer = loadImage(mUrl,
+        ImageContainer newContainer = loadImage(
                 new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
