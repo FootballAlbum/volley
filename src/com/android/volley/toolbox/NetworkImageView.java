@@ -97,6 +97,16 @@ public class NetworkImageView extends ImageView {
     }
 
     /**
+     * Loads the image from the network
+     */
+    protected ImageLoader.ImageContainer loadImage(String url, ImageLoader.ImageListener listener, int maxWidth, int maxHeight) {
+        if(url.contains("%w") && url.contains("%h")) {
+            return mImageLoader.get(url.replace("%w", String.valueOf(maxWidth)).replace("%h", String.valueOf(maxHeight)), listener);
+        }
+        return mImageLoader.get(url, listener, maxWidth, maxHeight);
+    }
+
+    /**
      * Loads the image for the view if it isn't already loaded.
      * @param isInLayoutPass True if this was invoked from a layout pass, false otherwise.
      */
@@ -146,7 +156,7 @@ public class NetworkImageView extends ImageView {
 
         // The pre-existing content of this view didn't match the current URL. Load the new image
         // from the network.
-        ImageContainer newContainer = mImageLoader.get(mUrl,
+        ImageContainer newContainer = loadImage(mUrl,
                 new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
