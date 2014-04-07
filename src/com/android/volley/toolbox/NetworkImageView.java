@@ -16,6 +16,7 @@
 package com.android.volley.toolbox;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
@@ -52,6 +53,8 @@ public class NetworkImageView extends ImageView {
     /** Current ImageContainer. (either in-flight or finished) */
     private ImageContainer mImageContainer;
 
+    private OnLoadListener onLoadListener;
+
     public NetworkImageView(Context context) {
         this(context, null);
     }
@@ -78,6 +81,7 @@ public class NetworkImageView extends ImageView {
      */
     public void setImageUrl(String url, ImageLoader imageLoader) {
         mUrl = url;
+        mRequestedUrl = mUrl.replace("%w", String.valueOf(getWidth())).replace("%h", String.valueOf(getHeight()));
         mImageLoader = imageLoader;
         // The URL has potentially changed. See if we need to load it.
         loadImageIfNecessary(false);
@@ -104,6 +108,7 @@ public class NetworkImageView extends ImageView {
      */
     private ImageLoader.ImageContainer loadImage(ImageLoader.ImageListener listener, int maxWidth, int maxHeight) {
         mRequestedUrl = mUrl.replace("%w", String.valueOf(maxWidth)).replace("%h", String.valueOf(maxHeight));
+        if(onLoadListener != null) onLoadListener.onLoadStart(mRequestedUrl);
         return mRequestedUrl.equals(mUrl) ? mImageLoader.get(mUrl, listener, maxWidth, maxHeight) : mImageLoader.get(mRequestedUrl, listener);
     }
 
@@ -114,6 +119,10 @@ public class NetworkImageView extends ImageView {
     void loadImageIfNecessary(final boolean isInLayoutPass) {
         int width = getWidth();
         int height = getHeight();
+
+        //image could be wrapped in padding so we fix the dimensions
+        width = Math.max(0,width - getPaddingRight() - getPaddingLeft());
+        height = Math.max(0,height - getPaddingTop() - getPaddingBottom());
 
         boolean wrapWidth = false, wrapHeight = false;
         if (getLayoutParams() != null) {
@@ -164,6 +173,7 @@ public class NetworkImageView extends ImageView {
                         if (mErrorImageId != 0) {
                             setImageResource(mErrorImageId);
                         }
+                        if(onLoadListener != null) onLoadListener.onLoadEnd(null);
                     }
 
                     @Override
@@ -187,8 +197,10 @@ public class NetworkImageView extends ImageView {
                         } else if (mDefaultImageId != 0) {
                             setImageResource(mDefaultImageId);
                         }
+                        if(onLoadListener != null) onLoadListener.onLoadEnd(response.getBitmap());
                     }
-                }, maxWidth, maxHeight);
+                }, maxWidth, maxHeight
+        );
 
         // update the ImageContainer to be the new bitmap container.
         mImageContainer = newContainer;
@@ -227,4 +239,13 @@ public class NetworkImageView extends ImageView {
         super.drawableStateChanged();
         invalidate();
     }
-}
+
+    public void setOnLoadListener(OnLoadListener onLoadListener) {
+        this.onLoadListener = onLoadListener;
+    }
+
+
+    public interface OnLoadListener{
+        public void onLoadStart(String url);
+        public void onLoadEnd(Bitmap loadedIImage);
+    }}
