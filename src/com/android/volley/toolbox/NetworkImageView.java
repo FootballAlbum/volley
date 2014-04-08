@@ -81,7 +81,7 @@ public class NetworkImageView extends ImageView {
      */
     public void setImageUrl(String url, ImageLoader imageLoader) {
         mUrl = url;
-        mRequestedUrl = mUrl.replace("%w", String.valueOf(getWidth())).replace("%h", String.valueOf(getHeight()));
+        mRequestedUrl = String.valueOf(mUrl).replace("%w", String.valueOf(getWidth())).replace("%h", String.valueOf(getHeight()));
         mImageLoader = imageLoader;
         // The URL has potentially changed. See if we need to load it.
         loadImageIfNecessary(false);
