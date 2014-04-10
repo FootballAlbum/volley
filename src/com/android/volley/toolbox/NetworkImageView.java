@@ -194,10 +194,10 @@ public class NetworkImageView extends ImageView {
 
                         if (response.getBitmap() != null) {
                             setImageBitmap(response.getBitmap());
+                            if(onLoadListener != null) onLoadListener.onLoadEnd(response.getBitmap());
                         } else if (mDefaultImageId != 0) {
                             setImageResource(mDefaultImageId);
                         }
-                        if(onLoadListener != null) onLoadListener.onLoadEnd(response.getBitmap());
                     }
                 }, maxWidth, maxHeight
         );
