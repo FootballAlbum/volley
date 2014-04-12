@@ -67,6 +67,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         int INCLUDE_STALE_CACHE = 8;
         int RETURN_CACHE_IMMEDIATELY = 16;
         int IGNORE_IDENTICAL_RESPONSES = 32;
+        int RETURN_NULL_FOR_UNMODIFIED_RESPONSES = 64;
     }
 
     /** An event log tracing the lifetime of this request; for debugging. */

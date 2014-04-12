@@ -21,6 +21,8 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
 
+import com.android.volley.toolbox.HttpHeaderParser;
+
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
@@ -116,6 +118,9 @@ public class NetworkDispatcher extends Thread {
                 if (request.hasHadResponseDelivered() && (networkResponse.notModified ||
                         ((request.getCachePolicy() & Request.CachePolicy.IGNORE_IDENTICAL_RESPONSES) != 0 &&
                                 Arrays.equals(networkResponse.data, mCache.get(request.getCacheKey()).data)))) {
+                    if((request.getCachePolicy() & Request.CachePolicy.RETURN_NULL_FOR_UNMODIFIED_RESPONSES) != 0) {
+                        mDelivery.postResponse(request, Response.success(null, HttpHeaderParser.parseCacheHeaders(networkResponse)));
+                    }
                     request.finish("not-modified");
                     continue;
                 }
