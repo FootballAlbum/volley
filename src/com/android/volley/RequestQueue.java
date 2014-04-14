@@ -248,12 +248,6 @@ public class RequestQueue {
                 // Insert 'null' queue for this cacheKey, indicating there is now a request in
                 // flight.
                 mWaitingRequests.put(cacheKey, null);
-//                if((request.getCachePolicy() & Request.CachePolicy.CACHE_ONLY)!=0) try {
-//                    mCacheDispatcher.dispatchRequest(request);
-//                    return request;
-//                } catch (InterruptedException e) {
-//                    //shouldn't happen but add to queue instead
-//                }
                 mCacheQueue.add(request);
             }
             return request;
