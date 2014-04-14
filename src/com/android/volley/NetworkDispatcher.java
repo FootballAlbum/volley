@@ -120,8 +120,9 @@ public class NetworkDispatcher extends Thread {
                                 Arrays.equals(networkResponse.data, mCache.get(request.getCacheKey()).data)))) {
                     if((request.getCachePolicy() & Request.CachePolicy.RETURN_NULL_FOR_UNMODIFIED_RESPONSES) != 0) {
                         mDelivery.postResponse(request, Response.success(null, HttpHeaderParser.parseCacheHeaders(networkResponse)));
+                    } else {
+                        request.finish("not-modified");
                     }
-                    request.finish("not-modified");
                     continue;
                 }
 
