@@ -90,8 +90,12 @@ public class CacheDispatcher extends Thread {
         Cache.Entry entry = mCache.get(request.getCacheKey());
         if (entry == null) {
             request.addMarker("cache-miss");
-            // Cache miss; send off to the network dispatcher.
-            mNetworkQueue.put(request);
+            if((request.getCachePolicy() & Request.CachePolicy.CACHE_ONLY) !=0 ) {
+                request.deliverError(new NoCacheError());
+            } else {
+                // Cache miss; send off to the network dispatcher.
+                mNetworkQueue.put(request);
+            }
             return;
         }
 
@@ -99,7 +103,11 @@ public class CacheDispatcher extends Thread {
         if ((request.getCachePolicy() & Request.CachePolicy.INCLUDE_STALE_CACHE)==0 && entry.isExpired()) {
             request.addMarker("cache-hit-expired");
             request.setCacheEntry(entry);
-            mNetworkQueue.put(request);
+            if((request.getCachePolicy() & Request.CachePolicy.CACHE_ONLY) !=0 ) {
+                request.deliverError(null);
+            } else {
+                mNetworkQueue.put(request);
+            }
             return;
         }
 
@@ -109,7 +117,7 @@ public class CacheDispatcher extends Thread {
                 new NetworkResponse(entry.data, entry.responseHeaders));
         request.addMarker("cache-hit-parsed");
 
-        if ((request.getCachePolicy() & Request.CachePolicy.AVOID_REFRESH)!=0 || (!entry.refreshNeeded() && (request.getCachePolicy() & Request.CachePolicy.FORCE_REFRESH)==0)) {
+        if ((request.getCachePolicy() & ( Request.CachePolicy.CACHE_ONLY | Request.CachePolicy.AVOID_REFRESH)) !=0 || (!entry.refreshNeeded() && (request.getCachePolicy() & Request.CachePolicy.FORCE_REFRESH)==0)) {
             // Completely unexpired cache hit. Just deliver the response.
             mDelivery.postResponse(request, response);
         } else {

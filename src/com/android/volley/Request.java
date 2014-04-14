@@ -65,7 +65,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         int FORCE_REFRESH = 2;
         int AVOID_REFRESH = 4;
         int INCLUDE_STALE_CACHE = 8;
-        int RETURN_CACHE_IMMEDIATELY = 16;
+        int CACHE_ONLY = 16;
         int IGNORE_IDENTICAL_RESPONSES = 32;
         int RETURN_NULL_FOR_UNMODIFIED_RESPONSES = 64;
     }
