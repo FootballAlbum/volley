@@ -91,7 +91,7 @@ public class CacheDispatcher extends Thread {
         if (entry == null) {
             request.addMarker("cache-miss");
             if((request.getCachePolicy() & Request.CachePolicy.CACHE_ONLY) !=0 ) {
-                request.deliverError(new NoCacheError());
+                mDelivery.postError(request, new NoCacheError());
             } else {
                 // Cache miss; send off to the network dispatcher.
                 mNetworkQueue.put(request);
@@ -104,7 +104,7 @@ public class CacheDispatcher extends Thread {
             request.addMarker("cache-hit-expired");
             request.setCacheEntry(entry);
             if((request.getCachePolicy() & Request.CachePolicy.CACHE_ONLY) !=0 ) {
-                request.deliverError(null);
+                mDelivery.postError(request, new NoCacheError());
             } else {
                 mNetworkQueue.put(request);
             }
